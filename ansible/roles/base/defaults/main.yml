@@ -71,3 +71,5 @@ base_sshd_config:
   PubkeyAuthentication: "yes"
   ChallengeResponseAuthentication: "no"
   GSSAPIAuthentication: "yes"
+
+base_cleanup_dnf_cache: true
