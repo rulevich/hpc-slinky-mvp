@@ -1,0 +1,29 @@
+---
+- name: Install firewalld
+  when: base_manage_firewall | bool
+  ansible.builtin.package:
+    name: firewalld
+    state: present
+  tags:
+    - firewall
+    - base
+
+- name: Enable and start firewalld
+  when: base_manage_firewall | bool
+  ansible.builtin.service:
+    name: "{{ base_firewall_service }}"
+    enabled: "{{ base_firewall_enabled }}"
+    state: started
+  tags:
+    - firewall
+    - base
+
+- name: Set default firewall zone
+  when: base_manage_firewall | bool
+  ansible.posix.firewalld:
+    zone: public
+    state: enabled
+    permanent: true
+  tags:
+    - firewall
+    - base

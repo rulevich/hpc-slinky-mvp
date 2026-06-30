@@ -50,3 +50,14 @@ base_ntp_servers:
 base_chrony_server_enabled: false
 base_chrony_allow_cidr: "172.31.0.0/16"
 base_chrony_client_server: "build01"
+
+base_sysctl:
+  vm.swappiness: 1
+  vm.max_map_count: 262144
+  fs.inotify.max_user_instances: 8192
+  fs.inotify.max_user_watches: 1048576
+  fs.file-max: 2097152
+
+base_firewall_service: firewalld
+
+base_firewall_enabled: true

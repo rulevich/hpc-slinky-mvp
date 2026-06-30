@@ -1,0 +1,9 @@
+---
+- name: Configure base sysctl parameters
+  when: base_configure_sysctl | bool
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop: "{{ base_sysctl | dict2items }}"
