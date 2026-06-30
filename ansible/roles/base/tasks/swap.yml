@@ -1,0 +1,31 @@
+---
+- name: Disable swap immediately
+  when: base_disable_swap | bool
+  ansible.builtin.command: swapoff -a
+  changed_when: false
+
+- name: Disable swap permanently in /etc/fstab
+  when: base_disable_swap | bool
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\sswap\s+.*)$'
+    replace: '# \1'
+  register: swap_fstab_result
+
+- name: Report if reboot may be required after swap change
+  when:
+    - base_disable_swap | bool
+    - swap_fstab_result.changed
+  ansible.builtin.debug:
+    msg: "Swap was disabled in /etc/fstab. Reboot is recommended later using playbooks/99-reboot.yml."
+
+- name: Verify swap is disabled
+  when: base_disable_swap | bool
+  ansible.builtin.command: swapon --show
+  register: swap_status
+  changed_when: false
+
+- name: Display swap status
+  when: base_disable_swap | bool
+  ansible.builtin.debug:
+    var: swap_status.stdout_lines
