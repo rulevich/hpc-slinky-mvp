@@ -1,0 +1,22 @@
+---
+- name: Configure SSH daemon options
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "^#?{{ item.key }}\\s+"
+    line: "{{ item.key }} {{ item.value }}"
+    state: present
+    backup: true
+  loop: "{{ base_sshd_config | dict2items }}"
+  notify: Restart sshd
+  tags:
+    - ssh
+    - base
+
+- name: Ensure sshd is enabled
+  ansible.builtin.service:
+    name: sshd
+    enabled: true
+    state: started
+  tags:
+    - ssh
+    - base

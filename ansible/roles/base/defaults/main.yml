@@ -64,3 +64,10 @@ base_firewall_enabled: true
 
 base_selinux_policy: targeted
 base_selinux_state: permissive
+
+base_sshd_config:
+  PermitRootLogin: "no"
+  PasswordAuthentication: "no"
+  PubkeyAuthentication: "yes"
+  ChallengeResponseAuthentication: "no"
+  GSSAPIAuthentication: "yes"
