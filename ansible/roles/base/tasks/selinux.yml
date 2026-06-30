@@ -1,0 +1,20 @@
+---
+- name: Install SELinux management packages
+  when: base_manage_selinux | bool
+  ansible.builtin.package:
+    name:
+      - policycoreutils-python-utils
+      - python3-libselinux
+    state: present
+  tags:
+    - selinux
+    - base
+
+- name: Configure SELinux state
+  when: base_manage_selinux | bool
+  ansible.posix.selinux:
+    policy: "{{ base_selinux_policy }}"
+    state: "{{ base_selinux_state }}"
+  tags:
+    - selinux
+    - base

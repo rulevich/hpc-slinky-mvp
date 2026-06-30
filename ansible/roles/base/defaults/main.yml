@@ -61,3 +61,6 @@ base_sysctl:
 base_firewall_service: firewalld
 
 base_firewall_enabled: true
+
+base_selinux_policy: targeted
+base_selinux_state: permissive
