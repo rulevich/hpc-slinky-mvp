@@ -1,0 +1,8 @@
+---
+- name: Install containerd packages
+  ansible.builtin.package:
+    name: "{{ containerd_packages }}"
+    state: present
+  tags:
+    - containerd
+    - install

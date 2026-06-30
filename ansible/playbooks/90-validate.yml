@@ -1,0 +1,26 @@
+---
+- name: Validate platform
+  hosts: all
+  become: true
+
+  tasks:
+
+    - name: Check hostname
+      ansible.builtin.command: hostname
+      changed_when: false
+
+    - name: Check chronyd
+      ansible.builtin.command: systemctl is-active chronyd
+      changed_when: false
+
+    - name: Check firewalld
+      ansible.builtin.command: systemctl is-active firewalld
+      changed_when: false
+
+    - name: Check sshd
+      ansible.builtin.command: systemctl is-active sshd
+      changed_when: false
+
+    - name: Check SELinux
+      ansible.builtin.command: getenforce
+      changed_when: false

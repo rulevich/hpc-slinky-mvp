@@ -1,0 +1,5 @@
+---
+- import_playbook: playbooks/00-base.yml
+- import_playbook: playbooks/05-repositories.yml
+- import_playbook: playbooks/10-containerd.yml
+- import_playbook: playbooks/90-validate.yml

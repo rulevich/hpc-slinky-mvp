@@ -1,0 +1,7 @@
+---
+- name: Configure package repositories
+  hosts: all
+  become: true
+
+  roles:
+    - repositories

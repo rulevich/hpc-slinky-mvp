@@ -1,0 +1,39 @@
+---
+- name: Check containerd service
+  ansible.builtin.command: systemctl is-active containerd
+  register: containerd_service_status
+  changed_when: false
+  failed_when: containerd_service_status.stdout != "active"
+  tags:
+    - containerd
+    - validate
+
+- name: Check containerd version
+  ansible.builtin.command: containerd --version
+  register: containerd_version
+  changed_when: false
+  tags:
+    - containerd
+    - validate
+
+- name: Check ctr version
+  ansible.builtin.command: ctr version
+  register: ctr_version
+  changed_when: false
+  tags:
+    - containerd
+    - validate
+
+- name: Display containerd version
+  ansible.builtin.debug:
+    var: containerd_version.stdout
+  tags:
+    - containerd
+    - validate
+
+- name: Display ctr version
+  ansible.builtin.debug:
+    var: ctr_version.stdout_lines
+  tags:
+    - containerd
+    - validate

@@ -1,0 +1,9 @@
+---
+- import_tasks: docker.yml
+  when: repositories_enable_docker | bool
+
+- import_tasks: kubernetes.yml
+  when: repositories_enable_kubernetes | bool
+
+- import_tasks: nvidia.yml
+  when: repositories_enable_nvidia | bool
