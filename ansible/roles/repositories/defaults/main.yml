@@ -1,4 +1,6 @@
 ---
 repositories_enable_docker: true
-repositories_enable_kubernetes: false
+repositories_enable_kubernetes: true
 repositories_enable_nvidia: false
+
+kubernetes_major_version: "1.34"

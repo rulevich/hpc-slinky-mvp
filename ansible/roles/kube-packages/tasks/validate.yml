@@ -1,0 +1,22 @@
+---
+- name: Check kubeadm version
+  ansible.builtin.command: kubeadm version -o short
+  register: kubeadm_version
+  changed_when: false
+
+- name: Check kubelet version
+  ansible.builtin.command: kubelet --version
+  register: kubelet_version
+  changed_when: false
+
+- name: Check kubectl version
+  ansible.builtin.command: kubectl version --client=true
+  register: kubectl_version
+  changed_when: false
+
+- name: Display Kubernetes package versions
+  ansible.builtin.debug:
+    msg:
+      - "{{ kubeadm_version.stdout }}"
+      - "{{ kubelet_version.stdout }}"
+      - "{{ kubectl_version.stdout_lines }}"
