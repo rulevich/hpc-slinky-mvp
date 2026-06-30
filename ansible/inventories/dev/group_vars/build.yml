@@ -1,0 +1,3 @@
+---
+base_chrony_server_enabled: true
+base_chrony_client_server: "build01"

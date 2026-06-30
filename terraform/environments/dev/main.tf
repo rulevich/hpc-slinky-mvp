@@ -1,16 +1,13 @@
-data "aws_ami" "rocky9" {
-  most_recent = true
-  owners      = ["679593333241"]
-
-  filter {
-    name   = "name"
-    values = ["Rocky-9-EC2-Base-9.*x86_64*"]
+locals {
+  instances = {
+    k8sctl01    = "t3.small"
+    k8sworker01 = "t3.small"
+    k8sworker02 = "t3.small"
+    k8sworker03 = "t3.small"
+    storage01   = "t3.small"
   }
 
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
+  rocky9_ami_id = "ami-0c38a49699e54e53a"
 }
 
 resource "aws_security_group" "slinky" {
@@ -19,19 +16,11 @@ resource "aws_security_group" "slinky" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "SSH from VPC/Ansible"
+    description = "SSH from VPC"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.allowed_ssh_cidr]
-  }
-
-  ingress {
-    description = "Internal all traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    self        = true
+    cidr_blocks = [var.allowed_vpc_cidr]
   }
 
   ingress {
@@ -39,7 +28,7 @@ resource "aws_security_group" "slinky" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["172.31.0.0/16"]
+    cidr_blocks = [var.allowed_vpc_cidr]
   }
 
   egress {
@@ -56,20 +45,10 @@ resource "aws_security_group" "slinky" {
   }
 }
 
-locals {
-  instances = {
-    k8sctl01    = "t3.small"
-    k8sworker01 = "t3.small"
-    k8sworker02 = "t3.small"
-    k8sworker03 = "t3.small"
-    storage01   = "t3.small"
-  }
-}
-
 resource "aws_instance" "nodes" {
   for_each = local.instances
 
-  ami                         = data.aws_ami.rocky9.id
+  ami                         = local.rocky9_ami_id
   instance_type               = each.value
   key_name                    = var.key_name
   subnet_id                   = var.subnet_id

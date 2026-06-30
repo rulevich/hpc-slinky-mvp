@@ -1,0 +1,13 @@
+---
+- name: Configure hostname
+  when: base_configure_hostname | bool
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Ensure hostname is present in /etc/hosts
+  when: base_configure_hostname | bool
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ inventory_hostname }}"
+    state: present

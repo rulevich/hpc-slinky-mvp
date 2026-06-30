@@ -1,0 +1,14 @@
+---
+- name: Restart chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: restarted
+
+- name: Reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+
+- name: Reboot server
+  ansible.builtin.reboot:
+    reboot_timeout: 600

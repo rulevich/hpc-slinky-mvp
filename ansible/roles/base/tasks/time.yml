@@ -1,0 +1,22 @@
+---
+- name: Configure timezone
+  when: base_configure_time | bool
+  community.general.timezone:
+    name: "{{ base_timezone }}"
+
+- name: Deploy chrony configuration
+  when: base_configure_time | bool
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chronyd
+
+- name: Ensure chronyd is enabled
+  when: base_configure_time | bool
+  ansible.builtin.service:
+    name: "{{ base_chrony_service }}"
+    enabled: true
+    state: started

@@ -1,0 +1,13 @@
+---
+- name: Install base packages
+  when: base_install_packages | bool
+  ansible.builtin.package:
+    name: "{{ base_packages }}"
+    state: present
+
+- name: Ensure chronyd is enabled
+  when: base_install_packages | bool
+  ansible.builtin.service:
+    name: chronyd
+    enabled: true
+    state: started

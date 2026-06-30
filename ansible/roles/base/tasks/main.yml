@@ -1,0 +1,30 @@
+---
+- name: Install packages
+  import_tasks: packages.yml
+
+- name: Configure hostname
+  import_tasks: hostname.yml
+
+- name: Configure time
+  import_tasks: time.yml
+
+- name: Configure firewall
+  import_tasks: firewall.yml
+
+- name: Configure SELinux
+  import_tasks: selinux.yml
+
+- name: Configure swap
+  import_tasks: swap.yml
+
+- name: Configure sysctl
+  import_tasks: sysctl.yml
+
+- name: Configure SSH
+  import_tasks: ssh.yml
+
+- name: Configure users
+  import_tasks: users.yml
+
+- name: Cleanup
+  import_tasks: cleanup.yml

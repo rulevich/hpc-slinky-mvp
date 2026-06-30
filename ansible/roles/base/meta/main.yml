@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Avraham Rulevich
+  description: Base operating system configuration for the HPC Slinky Platform
+  company: Ben-Gurion University
+  license: MIT
+  min_ansible_version: "2.15"
+
+  platforms:
+    - name: EL
+      versions:
+        - "9"
+
+dependencies: []
