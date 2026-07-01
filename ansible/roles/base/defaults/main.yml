@@ -18,6 +18,10 @@ base_configure_sysctl: true
 base_cleanup: true
 
 base_packages:
+  - socat
+  - ipset
+  - iproute
+  - conntrack-tools
   - bash-completion
   - bind-utils
   - chrony
