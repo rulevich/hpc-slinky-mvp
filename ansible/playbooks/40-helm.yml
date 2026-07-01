@@ -1,0 +1,6 @@
+---
+- name: Install Helm on build node
+  hosts: build
+  become: true
+  roles:
+    - helm
