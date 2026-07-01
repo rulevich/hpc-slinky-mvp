@@ -1,0 +1,6 @@
+---
+- name: Install cert-manager
+  hosts: build
+
+  roles:
+    - cert-manager
