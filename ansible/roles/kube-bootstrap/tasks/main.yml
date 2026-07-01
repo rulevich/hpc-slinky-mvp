@@ -1,0 +1,8 @@
+---
+- import_tasks: preflight.yml
+- import_tasks: firewall.yml
+- import_tasks: init.yml
+- import_tasks: kubeconfig.yml
+- import_tasks: cni.yml
+- import_tasks: join.yml
+- import_tasks: validate.yml

@@ -1,0 +1,6 @@
+---
+- name: Bootstrap Kubernetes cluster
+  hosts: kubernetes
+  become: true
+  roles:
+    - kube-bootstrap

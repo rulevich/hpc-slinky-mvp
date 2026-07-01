@@ -4,9 +4,6 @@
     name: "{{ item }}"
     state: present
   loop: "{{ containerd_kernel_modules }}"
-  tags:
-    - containerd
-    - configure
 
 - name: Persist containerd kernel modules
   ansible.builtin.copy:
@@ -18,9 +15,6 @@
       {% for module in containerd_kernel_modules %}
       {{ module }}
       {% endfor %}
-  tags:
-    - containerd
-    - configure
 
 - name: Configure Kubernetes networking sysctl
   ansible.posix.sysctl:
@@ -29,9 +23,6 @@
     state: present
     reload: true
   loop: "{{ containerd_sysctl | dict2items }}"
-  tags:
-    - containerd
-    - configure
 
 - name: Create containerd config directory
   ansible.builtin.file:
@@ -40,34 +31,17 @@
     owner: root
     group: root
     mode: "0755"
-  tags:
-    - containerd
-    - configure
 
-- name: Generate default containerd config
+- name: Generate containerd config with CRI enabled
   ansible.builtin.shell: |
     containerd config default > /etc/containerd/config.toml
-  args:
-    creates: /etc/containerd/config.toml
-  tags:
-    - containerd
-    - configure
-
-- name: Enable SystemdCgroup in containerd
-  ansible.builtin.replace:
-    path: /etc/containerd/config.toml
-    regexp: 'SystemdCgroup = false'
-    replace: 'SystemdCgroup = true'
+    sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+    sed -i 's/disabled_plugins = \["cri"\]/disabled_plugins = []/g' /etc/containerd/config.toml
+  changed_when: true
   notify: Restart containerd
-  tags:
-    - containerd
-    - configure
 
 - name: Enable and start containerd
   ansible.builtin.service:
     name: "{{ containerd_service }}"
     enabled: true
     state: started
-  tags:
-    - containerd
-    - configure

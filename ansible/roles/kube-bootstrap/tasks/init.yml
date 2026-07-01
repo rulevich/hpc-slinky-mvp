@@ -1,0 +1,16 @@
+---
+- name: Check if Kubernetes control plane already exists
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubeadm_admin_conf
+  when: inventory_hostname in groups['k8s_control']
+
+- name: Initialize Kubernetes control plane
+  ansible.builtin.command: >
+    kubeadm init
+    --pod-network-cidr {{ kubernetes_pod_cidr }}
+    --service-cidr {{ kubernetes_service_cidr }}
+    --apiserver-advertise-address {{ kubernetes_apiserver_advertise_address }}
+  when:
+    - inventory_hostname in groups['k8s_control']
+    - not kubeadm_admin_conf.stat.exists

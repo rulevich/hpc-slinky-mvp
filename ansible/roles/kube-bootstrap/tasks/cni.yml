@@ -1,0 +1,7 @@
+---
+- name: Install Calico CNI
+  ansible.builtin.command: kubectl apply -f {{ calico_manifest_url }}
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: inventory_hostname in groups['k8s_control']
+  changed_when: true

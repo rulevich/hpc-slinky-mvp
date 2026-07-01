@@ -1,0 +1,29 @@
+---
+- name: Open Kubernetes API server port on control plane
+  ansible.posix.firewalld:
+    port: 6443/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+  when: inventory_hostname in groups['k8s_control']
+
+- name: Open kubelet port on Kubernetes nodes
+  ansible.posix.firewalld:
+    port: 10250/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Open Calico BGP port
+  ansible.posix.firewalld:
+    port: 179/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Open Calico VXLAN port
+  ansible.posix.firewalld:
+    port: 4789/udp
+    permanent: true
+    immediate: true
+    state: enabled

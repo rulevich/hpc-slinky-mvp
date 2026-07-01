@@ -1,0 +1,16 @@
+---
+- name: Wait for nodes to appear
+  ansible.builtin.command: kubectl get nodes
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: kube_nodes
+  changed_when: false
+  retries: 20
+  delay: 15
+  until: kube_nodes.rc == 0
+  when: inventory_hostname in groups['k8s_control']
+
+- name: Show Kubernetes nodes
+  ansible.builtin.debug:
+    var: kube_nodes.stdout_lines
+  when: inventory_hostname in groups['k8s_control']

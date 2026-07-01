@@ -1,0 +1,16 @@
+---
+- name: Ensure kubeadm is installed
+  ansible.builtin.command: kubeadm version -o short
+  changed_when: false
+
+- name: Ensure containerd is active
+  ansible.builtin.command: systemctl is-active containerd
+  register: containerd_status
+  changed_when: false
+  failed_when: containerd_status.stdout != "active"
+
+- name: Ensure swap is disabled
+  ansible.builtin.command: swapon --show
+  register: swap_status
+  changed_when: false
+  failed_when: swap_status.stdout | length > 0

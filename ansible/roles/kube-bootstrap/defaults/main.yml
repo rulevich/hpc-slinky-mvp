@@ -1,0 +1,8 @@
+---
+kubernetes_cluster_name: slinky-lab
+kubernetes_pod_cidr: "192.168.0.0/16"
+kubernetes_service_cidr: "10.96.0.0/12"
+kubernetes_control_plane_endpoint: "k8sctl01"
+kubernetes_apiserver_advertise_address: "{{ ansible_default_ipv4.address }}"
+kubernetes_cni: calico
+calico_manifest_url: "https://raw.githubusercontent.com/projectcalico/calico/v3.30.2/manifests/calico.yaml"
