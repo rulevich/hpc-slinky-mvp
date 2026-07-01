@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ pvc_name }}
+  namespace: {{ validation_namespace }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: {{ storage_class_name }}
+  resources:
+    requests:
+      storage: 1Gi

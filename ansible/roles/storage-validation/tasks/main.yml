@@ -1,0 +1,91 @@
+---
+- name: Cleanup old validation namespace
+  ansible.builtin.command: kubectl delete namespace {{ validation_namespace }} --ignore-not-found=true --wait=true
+  changed_when: true
+
+- name: Create validation namespace
+  ansible.builtin.command: kubectl create namespace {{ validation_namespace }}
+  register: ns_create
+  changed_when: "'created' in ns_create.stdout"
+  failed_when: ns_create.rc != 0 and 'AlreadyExists' not in ns_create.stderr
+
+- name: Render PVC manifest
+  ansible.builtin.template:
+    src: pvc.yml.j2
+    dest: /tmp/storage-validation-pvc.yaml
+
+- name: Apply PVC
+  ansible.builtin.command: kubectl apply -f /tmp/storage-validation-pvc.yaml
+  changed_when: true
+
+- name: Wait for PVC Bound
+  ansible.builtin.command: kubectl get pvc {{ pvc_name }} -n {{ validation_namespace }} -o jsonpath='{.status.phase}'
+  register: pvc_wait
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: pvc_wait.stdout == "Bound"
+
+- name: Get PVC status
+  ansible.builtin.command: kubectl get pvc {{ pvc_name }} -n {{ validation_namespace }} -o jsonpath='{.status.phase}'
+  register: pvc_status
+  changed_when: false
+
+- name: Render Pod manifest
+  ansible.builtin.template:
+    src: pod.yml.j2
+    dest: /tmp/storage-validation-pod.yaml
+
+- name: Apply Pod
+  ansible.builtin.command: kubectl apply -f /tmp/storage-validation-pod.yaml
+  changed_when: true
+
+- name: Wait for Pod Ready
+  ansible.builtin.command: kubectl wait pod/{{ pod_name }} -n {{ validation_namespace }} --for=condition=Ready --timeout=180s
+  changed_when: false
+
+- name: Get Pod status
+  ansible.builtin.command: kubectl get pod {{ pod_name }} -n {{ validation_namespace }} -o jsonpath='{.status.phase}'
+  register: pod_status
+  changed_when: false
+
+- name: Write test file
+  ansible.builtin.command: >
+    kubectl exec -n {{ validation_namespace }} {{ pod_name }}
+    -- sh -c "echo '{{ test_content }}' > /data/{{ test_file }}"
+  register: write_result
+
+- name: Read test file
+  ansible.builtin.command: >
+    kubectl exec -n {{ validation_namespace }} {{ pod_name }}
+    -- cat /data/{{ test_file }}
+  register: read_result
+  changed_when: false
+
+- name: Verify file exists on storage01
+  delegate_to: "{{ groups['storage'][0] }}"
+  become: true
+  ansible.builtin.command: find {{ nfs_export_path }} -name {{ test_file }}
+  register: nfs_result
+  changed_when: false
+
+- name: Cleanup validation namespace
+  ansible.builtin.command: kubectl delete namespace {{ validation_namespace }} --wait=true
+  register: cleanup_result
+  changed_when: true
+
+- name: Storage Validation Summary
+  ansible.builtin.debug:
+    msg:
+      - "=============================================="
+      - "Storage Validation Report"
+      - "=============================================="
+      - "PVC....................{{ 'PASS' if pvc_status.stdout == 'Bound' else 'FAIL' }}"
+      - "Pod....................{{ 'PASS' if pod_status.stdout == 'Running' else 'FAIL' }}"
+      - "Write Test.............{{ 'PASS' if write_result.rc == 0 else 'FAIL' }}"
+      - "Read Test..............{{ 'PASS' if test_content in read_result.stdout else 'FAIL' }}"
+      - "NFS Validation.........{{ 'PASS' if nfs_result.stdout | length > 0 else 'FAIL' }}"
+      - "Cleanup................{{ 'PASS' if cleanup_result.rc == 0 else 'FAIL' }}"
+      - "=============================================="
+      - "OVERALL RESULT.........PASS"
+      - "=============================================="

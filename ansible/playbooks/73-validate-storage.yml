@@ -1,0 +1,7 @@
+---
+- name: Validate Kubernetes Storage
+  hosts: build
+  become: false
+
+  roles:
+    - storage-validation

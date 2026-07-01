@@ -1,0 +1,9 @@
+---
+validation_namespace: storage-validation
+storage_class_name: nfs-client
+pvc_name: pvc-test
+pod_name: storage-test
+test_file: storage-validation.txt
+test_content: "Storage validation successful"
+
+nfs_export_path: /export/slinky
