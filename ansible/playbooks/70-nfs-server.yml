@@ -1,0 +1,7 @@
+---
+- name: Configure NFS server
+  hosts: storage
+  become: true
+
+  roles:
+    - nfs-server

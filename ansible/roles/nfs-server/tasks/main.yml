@@ -1,0 +1,63 @@
+---
+- name: Install NFS server packages
+  ansible.builtin.package:
+    name: nfs-utils
+    state: present
+
+- name: Create NFS export directory
+  ansible.builtin.file:
+    path: "{{ nfs_export_path }}"
+    state: directory
+    owner: "{{ nfs_export_owner }}"
+    group: "{{ nfs_export_group }}"
+    mode: "{{ nfs_export_mode }}"
+
+- name: Deploy exports file
+  ansible.builtin.template:
+    src: exports.j2
+    dest: /etc/exports
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload NFS exports
+
+- name: Open NFS service in firewalld
+  ansible.posix.firewalld:
+    service: nfs
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Open mountd service in firewalld
+  ansible.posix.firewalld:
+    service: mountd
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Open rpc-bind service in firewalld
+  ansible.posix.firewalld:
+    service: rpc-bind
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Enable and start NFS services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop: "{{ nfs_services }}"
+
+- name: Export NFS shares
+  ansible.builtin.command: exportfs -ra
+  changed_when: false
+
+- name: Validate NFS exports
+  ansible.builtin.command: exportfs -v
+  register: nfs_exports
+  changed_when: false
+
+- name: Show NFS exports
+  ansible.builtin.debug:
+    var: nfs_exports.stdout_lines
