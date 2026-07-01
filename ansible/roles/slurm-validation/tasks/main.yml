@@ -1,0 +1,66 @@
+---
+- name: Check Slurm pods
+  ansible.builtin.command: kubectl get pods -n {{ slurm_namespace }}
+  register: slurm_pods
+  changed_when: false
+
+- name: Check Slurm nodes
+  ansible.builtin.command: >
+    kubectl exec -n {{ slurm_namespace }} {{ slurm_controller_pod }}
+    -c {{ slurm_controller_container }} -- sinfo
+  register: slurm_sinfo
+  changed_when: false
+
+- name: Check Slurm node details
+  ansible.builtin.command: >
+    kubectl exec -n {{ slurm_namespace }} {{ slurm_controller_pod }}
+    -c {{ slurm_controller_container }} -- scontrol show nodes
+  register: slurm_nodes
+  changed_when: false
+
+- name: Submit Slurm validation job
+  ansible.builtin.command: >
+    kubectl exec -n {{ slurm_namespace }} {{ slurm_controller_pod }}
+    -c {{ slurm_controller_container }} --
+    sbatch --job-name={{ slurm_test_job_name }} --wrap="{{ slurm_test_command }}"
+  register: slurm_submit
+  changed_when: true
+
+- name: Extract job id
+  ansible.builtin.set_fact:
+    slurm_job_id: "{{ slurm_submit.stdout | regex_search('[0-9]+') }}"
+
+- name: Wait for Slurm job to finish
+  ansible.builtin.command: >
+    kubectl exec -n {{ slurm_namespace }} {{ slurm_controller_pod }}
+    -c {{ slurm_controller_container }} --
+    scontrol show job {{ slurm_job_id }}
+  register: slurm_job_status
+  changed_when: false
+  retries: 30
+  delay: 5
+  until: "'JobState=COMPLETED' in slurm_job_status.stdout"
+
+- name: Check Slurm queue
+  ansible.builtin.command: >
+    kubectl exec -n {{ slurm_namespace }} {{ slurm_controller_pod }}
+    -c {{ slurm_controller_container }} -- squeue
+  register: slurm_queue
+  changed_when: false
+
+- name: Print Slurm Validation Report
+  ansible.builtin.debug:
+    msg:
+      - "=============================================="
+      - "Slurm Cluster Validation Report"
+      - "=============================================="
+      - "Pods...................{{ 'PASS' if 'Running' in slurm_pods.stdout else 'FAIL' }}"
+      - "sinfo..................{{ 'PASS' if 'idle' in slurm_sinfo.stdout or 'alloc' in slurm_sinfo.stdout or 'mix' in slurm_sinfo.stdout else 'FAIL' }}"
+      - "Nodes..................{{ 'PASS' if 'NodeName=' in slurm_nodes.stdout else 'FAIL' }}"
+      - "Job Submit.............{{ 'PASS' if slurm_submit.rc == 0 else 'FAIL' }}"
+      - "Job ID.................{{ slurm_job_id }}"
+      - "Job Completed..........{{ 'PASS' if 'JobState=COMPLETED' in slurm_job_status.stdout else 'FAIL' }}"
+      - "Exit Code..............{{ 'PASS' if 'ExitCode=0:0' in slurm_job_status.stdout else 'FAIL' }}"
+      - "=============================================="
+      - "OVERALL RESULT.........{{ 'PASS' if 'JobState=COMPLETED' in slurm_job_status.stdout and 'ExitCode=0:0' in slurm_job_status.stdout else 'FAIL' }}"
+      - "=============================================="

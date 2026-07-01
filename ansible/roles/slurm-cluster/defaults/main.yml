@@ -1,0 +1,5 @@
+---
+slurm_namespace: slurm
+slurm_chart_version: "1.1.0"
+slurm_chart: oci://ghcr.io/slinkyproject/charts/slurm
+slurm_storage_class: nfs-client

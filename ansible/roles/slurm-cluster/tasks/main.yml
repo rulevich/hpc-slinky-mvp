@@ -1,0 +1,30 @@
+---
+- name: Install Slurm cluster with Slinky Helm chart
+  ansible.builtin.command: >
+    /usr/local/bin/helm upgrade --install slurm
+    {{ slurm_chart }}
+    --namespace {{ slurm_namespace }}
+    --create-namespace
+    --version {{ slurm_chart_version }}
+    --set controller.persistence.storageClassName={{ slurm_storage_class }}
+    --wait
+    --timeout 10m
+  changed_when: true
+
+- name: Show Slurm pods
+  ansible.builtin.command: /usr/local/bin/kubectl get pods -n {{ slurm_namespace }}
+  register: slurm_pods
+  changed_when: false
+
+- name: Display Slurm pods
+  ansible.builtin.debug:
+    var: slurm_pods.stdout_lines
+
+- name: Show Slurm PVCs
+  ansible.builtin.command: /usr/local/bin/kubectl get pvc -n {{ slurm_namespace }}
+  register: slurm_pvcs
+  changed_when: false
+
+- name: Display Slurm PVCs
+  ansible.builtin.debug:
+    var: slurm_pvcs.stdout_lines

@@ -1,0 +1,7 @@
+---
+- name: Deploy Slurm cluster with Slinky
+  hosts: build
+  become: false
+
+  roles:
+    - slurm-cluster

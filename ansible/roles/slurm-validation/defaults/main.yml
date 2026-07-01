@@ -1,0 +1,6 @@
+---
+slurm_namespace: slurm
+slurm_controller_pod: slurm-controller-0
+slurm_controller_container: slurmctld
+slurm_test_job_name: slurm-validation
+slurm_test_command: "hostname && sleep 5"
