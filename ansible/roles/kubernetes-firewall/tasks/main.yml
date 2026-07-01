@@ -37,6 +37,14 @@
     state: enabled
   loop: "{{ calico_ports }}"
 
+- name: Allow Calico IPIP protocol
+  ansible.posix.firewalld:
+    protocol: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ calico_protocols }}"
+
 - name: Trust pod network
   ansible.posix.firewalld:
     source: "{{ kubernetes_pod_cidr }}"
