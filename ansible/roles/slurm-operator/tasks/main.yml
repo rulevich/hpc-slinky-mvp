@@ -1,0 +1,36 @@
+---
+- name: Install slurm-operator CRDs
+  ansible.builtin.command: >
+    /usr/local/bin/helm upgrade --install slurm-operator-crds
+    {{ slurm_operator_crds_chart }}
+    --version {{ slurm_operator_chart_version }}
+  changed_when: true
+
+- name: Install slurm-operator
+  ansible.builtin.command: >
+    /usr/local/bin/helm upgrade --install slurm-operator
+    {{ slurm_operator_chart }}
+    --namespace {{ slurm_operator_namespace }}
+    --create-namespace
+    --version {{ slurm_operator_chart_version }}
+    --wait
+    --timeout 10m
+  changed_when: true
+
+- name: Validate slurm-operator pods
+  ansible.builtin.command: /usr/local/bin/kubectl get pods -n {{ slurm_operator_namespace }}
+  register: slurm_operator_pods
+  changed_when: false
+
+- name: Show slurm-operator pods
+  ansible.builtin.debug:
+    var: slurm_operator_pods.stdout_lines
+
+- name: Validate Slinky CRDs
+  ansible.builtin.command: /usr/local/bin/kubectl get crds
+  register: slurm_operator_crds
+  changed_when: false
+
+- name: Show Slinky CRDs
+  ansible.builtin.debug:
+    msg: "{{ slurm_operator_crds.stdout_lines | select('search', 'slinky|slurm') | list }}"

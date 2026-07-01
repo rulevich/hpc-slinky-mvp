@@ -1,0 +1,7 @@
+---
+- name: Configure Kubernetes firewall
+  hosts: kubernetes
+  become: true
+
+  roles:
+    - kubernetes-firewall

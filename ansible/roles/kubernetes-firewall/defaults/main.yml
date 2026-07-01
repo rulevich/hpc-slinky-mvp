@@ -1,0 +1,16 @@
+---
+kubernetes_pod_cidr: "192.168.0.0/16"
+kubernetes_service_cidr: "10.96.0.0/12"
+
+kubernetes_control_plane_ports:
+  - 6443/tcp
+  - 2379-2380/tcp
+  - 10250/tcp
+  - 10257/tcp
+  - 10259/tcp
+
+kubernetes_worker_ports:
+  - 10250/tcp
+
+calico_ports:
+  - 4789/udp

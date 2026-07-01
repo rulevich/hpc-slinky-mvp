@@ -1,0 +1,7 @@
+---
+- name: Install Slinky slurm-operator
+  hosts: build
+  become: false
+
+  roles:
+    - slurm-operator

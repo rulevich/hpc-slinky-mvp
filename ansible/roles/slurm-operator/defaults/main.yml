@@ -1,0 +1,6 @@
+---
+slurm_operator_namespace: slinky
+slurm_operator_chart_version: "1.1.0"
+
+slurm_operator_crds_chart: oci://ghcr.io/slinkyproject/charts/slurm-operator-crds
+slurm_operator_chart: oci://ghcr.io/slinkyproject/charts/slurm-operator

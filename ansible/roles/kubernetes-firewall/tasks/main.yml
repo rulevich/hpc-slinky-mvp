@@ -1,0 +1,67 @@
+---
+- name: Enable and start firewalld
+  ansible.builtin.service:
+    name: firewalld
+    enabled: true
+    state: started
+
+- name: Enable masquerade
+  ansible.posix.firewalld:
+    masquerade: true
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Open Kubernetes control plane ports
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ kubernetes_control_plane_ports }}"
+  when: inventory_hostname in groups['k8s_control']
+
+- name: Open Kubernetes worker ports
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ kubernetes_worker_ports }}"
+
+- name: Open Calico ports
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ calico_ports }}"
+
+- name: Trust pod network
+  ansible.posix.firewalld:
+    source: "{{ kubernetes_pod_cidr }}"
+    zone: trusted
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Trust service network
+  ansible.posix.firewalld:
+    source: "{{ kubernetes_service_cidr }}"
+    zone: trusted
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: Reload firewalld
+  ansible.builtin.command: firewall-cmd --reload
+  changed_when: false
+
+- name: Validate firewalld
+  ansible.builtin.command: firewall-cmd --list-all
+  register: firewall_status
+  changed_when: false
+
+- name: Show firewall status
+  ansible.builtin.debug:
+    var: firewall_status.stdout_lines
