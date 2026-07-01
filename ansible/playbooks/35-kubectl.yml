@@ -1,0 +1,7 @@
+---
+- name: Install kubectl on build server
+  hosts: build
+  become: true
+
+  roles:
+    - kubectl

@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  author: Avraham Rulevich
+  description: Configure kubeconfig on build node
+  min_ansible_version: "2.14"
+
+dependencies: []

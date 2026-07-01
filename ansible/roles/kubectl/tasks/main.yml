@@ -1,0 +1,17 @@
+---
+- name: Download kubectl
+  ansible.builtin.get_url:
+    url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/{{ kubectl_os }}/{{ kubectl_arch }}/kubectl"
+    dest: /usr/local/bin/kubectl
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Verify kubectl installation
+  ansible.builtin.command: /usr/local/bin/kubectl version --client
+  register: kubectl_version_output
+  changed_when: false
+
+- name: Display kubectl version
+  ansible.builtin.debug:
+    var: kubectl_version_output.stdout_lines

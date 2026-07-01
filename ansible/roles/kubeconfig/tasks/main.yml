@@ -1,0 +1,35 @@
+---
+- name: Fetch kubeconfig from control plane
+  ansible.builtin.fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: /tmp/slinky-admin.conf
+    flat: true
+  delegate_to: "{{ groups['k8s_control'][0] }}"
+  become: true
+  run_once: true
+
+- name: Create kube directory on build node
+  ansible.builtin.file:
+    path: /home/rocky/.kube
+    state: directory
+    owner: rocky
+    group: rocky
+    mode: "0755"
+
+- name: Install kubeconfig on build node
+  ansible.builtin.copy:
+    src: /tmp/slinky-admin.conf
+    dest: /home/rocky/.kube/config
+    owner: rocky
+    group: rocky
+    mode: "0600"
+
+- name: Validate kubectl access
+  ansible.builtin.command: /usr/local/bin/kubectl get nodes
+  become: false
+  register: kubectl_nodes
+  changed_when: false
+
+- name: Show Kubernetes nodes
+  ansible.builtin.debug:
+    var: kubectl_nodes.stdout_lines

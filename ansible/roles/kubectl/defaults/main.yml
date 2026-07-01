@@ -1,0 +1,4 @@
+---
+kubectl_version: "v1.34.9"
+kubectl_arch: "amd64"
+kubectl_os: "linux"
