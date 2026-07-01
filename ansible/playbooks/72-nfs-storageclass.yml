@@ -1,0 +1,7 @@
+---
+- name: Configure NFS StorageClass
+  hosts: build
+  become: false
+
+  roles:
+    - nfs-storageclass
