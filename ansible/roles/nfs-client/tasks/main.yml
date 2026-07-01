@@ -1,0 +1,21 @@
+---
+- name: Install NFS client packages
+  ansible.builtin.package:
+    name: nfs-utils
+    state: present
+
+- name: Ensure rpcbind is enabled
+  ansible.builtin.service:
+    name: rpcbind
+    enabled: true
+    state: started
+
+- name: Verify NFS server exports
+  ansible.builtin.command:
+    cmd: showmount -e {{ nfs_server }}
+  register: nfs_exports
+  changed_when: false
+
+- name: Display available exports
+  ansible.builtin.debug:
+    var: nfs_exports.stdout_lines
